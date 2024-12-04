@@ -33,29 +33,31 @@ output logic [7:0] Xo,output logic [6:0]Yo
  
         state_t current_state, next_state;
 always_ff @(posedge clk or negedge reset) begin
-    if (!reset) begin
+    if (!reset) 
         current_state <= idle; // Reset to locked state
   //      x<=0 ; y<=0 ; Count<=0; y<=r ; 
-    end else begin
-        current_state <= next_state; // Update to next state on positive edge of clk
+     else 
+        current_state <= next_state; // Update to next state on positive edge of clk 
     end
-end    
+    
+    
     
      always_comb begin
        
         case (current_state)
-            idle: begin
-                if (x<=y) 
-                    next_state = init ; 
-                    else next_state = plotting ; end
+            idle: 
+            if(b)begin next_state = init; end
+               
                     
 
-            init: 
-             next_state = plotting;
+            init: begin if (x<=y) 
+                    next_state = plotting ; 
+                    else next_state = init ; end 
 
-            plotting: 
-            if(Count<7) next_state = plotting;
-            else next_state = comp ; 
+            plotting:
+    if (Count == 7) next_state = comp;
+    else next_state = plotting;
+
             
             comp: 
             if(d>=0)next_state = more ; 
@@ -78,12 +80,24 @@ end
 
     
  //always @(current_state , Count) begin
-  always @(*) begin
+  always @(posedge clk,negedge reset) begin
+if (!reset) begin
+        Count <= 0;x <= 0;y <= 0;F <= 0;
+        
+     end else begin
+    if (current_state == plotting) 
+        if (Count < 7)
+            Count <= Count + 1;
+        else
+            Count <= 0;end
+  
+    
+    if(current_state ==idle)
+    F=0 ; 
+    
+    
+    
 
-  if(current_state == idle)begin   
-  F=0 ; end
-  
-  
   
   if(current_state == init)begin 
   x=0;
@@ -92,22 +106,19 @@ end
   end
   
   
-  if(current_state == plotting && Count==0)begin
-  Xo = Xc+x ; Yo =Yc+y ;  end
-   if(current_state == plotting && Count==1)begin
-  Xo = Xc-x ; Yo =Yc+y ;  end
-    if(current_state == plotting && Count==2)begin
-  Xo = Xc+x ; Yo =Yc-y ;  end
-   if(current_state == plotting && Count==3)begin
-  Xo = Xc-x ; Yo =Yc-y ;  end
-    if(current_state == plotting && Count==4)begin
-  Xo = Xc+y ; Yo =Yc+x ;  end
-   if(current_state == plotting && Count==5)begin
-  Xo = Xc-y ; Yo =Yc+x ;  end
-    if(current_state == plotting && Count==6)begin
-  Xo = Xc+y ; Yo =Yc-x ;  end
-   if(current_state == plotting && Count==7)begin
-  Xo = Xc-y ; Yo =Yc-x ;   end
+ if (current_state == plotting) begin
+        case (Count)
+            0: begin Xo <= Xc + x; Yo <= Yc + y; end
+            1: begin Xo <= Xc - x; Yo <= Yc + y; end
+            2: begin Xo <= Xc + x; Yo <= Yc - y; end
+            3: begin Xo <= Xc - x; Yo <= Yc - y; end
+            4: begin Xo <= Xc + y; Yo <= Yc + x; end
+            5: begin Xo <= Xc - y; Yo <= Yc + x; end
+            6: begin Xo <= Xc + y; Yo <= Yc - x; end
+            7: begin Xo <= Xc - y; Yo <= Yc - x; end
+        endcase
+end
+
 
   if(current_state == plotting)
   Count+=1 ; 
@@ -123,9 +134,13 @@ end
     if(current_state == more)begin
     d= d + (  (x-y) <<2 ) + 10 ; 
     y -=1 ; end
-    F = x<=y ? 0:1 ; 
     
+    
+    
+        if(current_state == less || current_state ==more)begin
+    F = x<=y ? 0:1 ; 
     end
     
     
+    end
 endmodule

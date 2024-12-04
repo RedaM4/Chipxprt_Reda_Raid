@@ -40,6 +40,8 @@ module Task3_sim;
 reset=0 ; b=1;Xc=12 ; Yc=10 ;r=2 ; 
 #10
 reset=1 ; 
+#10
+b=0;
 
 
 end

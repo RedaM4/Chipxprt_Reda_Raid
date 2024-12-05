@@ -56,12 +56,15 @@ module Task2_dp(
     logic signalY;
     
     logic [2:0]yColor;
+    logic signalXdelayed;
+    
     assign resetSignalX=!signalX;
     assign resetSignalY=!signalY;
 
     assign yColor   ={countY[2],countY[1],countY[0]};
     
-    assign f    =   signalX & signalY;
+    assign f    =   signalXdelayed & signalY;
+    
     
     assign x=countX;
     assign y=countY;
@@ -71,17 +74,18 @@ module Task2_dp(
     nBits_up_down_counter #(.n(yCount)) upCntr2(.clk(signalX),.reset((reset & resetSignalY)),.up_down(1),.count(countY));
     nBits_comparator #(.n(yCount)) cmpY(.clk(clk),.reset(reset),.count(countY),.signal(signalY));
     n_2x1mux #(.n(3)) mux1(.a(yColor),.b(3'b000),.s(black),.res(color));
-    
+    dFlipFlop dff1(.clk(clk),.reset(reset),.d(signalX),.q(signalXdelayed));
   
   /*
   
-module n_2x1mux #(parameter n=4)(
-    input logic [n-1:0]a,
-    input logic [n-1:0]b,
-    input logic s,
-    output logic [n-1:0]res
+
+module dFlipFlop(
+    input logic clk,
+    input logic reset,
+    input logic d,
+    output logic q,
+    output logic qb
     );
     
-    assign res = s ? b : a;
         */
 endmodule

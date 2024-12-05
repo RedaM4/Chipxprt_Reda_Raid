@@ -71,6 +71,7 @@ module Task2_dp(
         #20
         #20
         #20;
+        button1=0;
        // $finish;
         end
         
